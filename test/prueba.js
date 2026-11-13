@@ -64,6 +64,21 @@ r = await tool('leer_skin_vts', { ruta: vts });
 check(r.content[0].text.includes('Boton_Whatsapp') && r.content[0].text.includes('Panel_Info') && r.content[0].text.includes('"EXTRA"'), 'leer_skin_vts arbol');
 r = await rpc('tools/call', { name: 'crear_skin_vts', arguments: { archivo_salida: vts + '.x.vts', plantilla: 'ninguna', componentes: [{ tipo: 'boton', nombre: 'X', acciones: [{ tipo: 'mostrar', componentes: ['NoExiste'] }] }] } });
 check(r.result.isError && r.result.content[0].text.includes('NoExiste'), 'valida referencias de acciones');
+// menu plegable de opciones con controles nativos
+const vts2 = path.join(dir, 'export-demo', 'skin-opciones.vts');
+r = await tool('crear_skin_vts', { archivo_salida: vts2, botones: ['anterior', 'siguiente', 'opciones'], opciones: ['audio', 'pantalla', 'giroscopio', 'vr', 'hotspots', 'zoom_mas'] });
+r = await tool('leer_skin_vts', { ruta: vts2, formato: 'json' });
+{
+  const s = JSON.parse(r.content[0].text);
+  const porNombre = Object.fromEntries(s.definitions.filter((d) => d.name).map((d) => [d.name, d]));
+  const mc = (n) => porNombre[n]?.behaviours?.[0];
+  check(porNombre.Contenedor_Opciones?.visible === false, 'menu de opciones oculto al inicio');
+  check(mc('Boton_Opciones')?.action === 'showHideComponents' && porNombre.Boton_Opciones.mode === 'toggle', 'boton opciones alterna el menu');
+  check(mc('Boton_Audio')?.mediaControl === 'buttonToggleMute' && porNombre.Boton_Audio.mode === 'toggle', 'silencio nativo toggle');
+  check(mc('Boton_Giroscopio')?.mediaControl === 'buttonToggleGyroscope' && porNombre.Boton_Giroscopio.visibleIfGyroscopeAvailable === true, 'giroscopio nativo');
+  check(mc('Boton_Vr')?.mediaControl === 'buttonCardboardView' && mc('Boton_ZoomMas')?.mediaControl === 'buttonZoomIn', 'vr y zoom nativos');
+  check(s.buttonToggleMute === `this.${porNombre.Boton_Audio.id}` && s.buttonToggleFullscreen === `this.${porNombre.Boton_Pantalla.id}`, 'enlaces en el player');
+}
 
 const rl = await rpc('resources/list', {}); check(rl.result.resources.length > 0, 'resources/list');
 srv.stdin.end();

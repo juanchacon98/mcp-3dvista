@@ -9,10 +9,10 @@ import { crearSkinHtml, instalarSkinDesde, crearIconos, planSkinNativo, modulosD
 import { inyectar, quitarInyeccion, listarInyecciones, escribirEnExport } from './lib/inyectar.js';
 import { ICONOS } from './lib/iconos.js';
 import { guia, GUIA } from './lib/guia.js';
-import { crearSkinVts, leerVts, BOTONES_VTS } from './lib/vts.js';
+import { crearSkinVts, leerVts, BOTONES_VTS, OPCIONES_VTS, CONTROLES } from './lib/vts.js';
 import { iconoPng } from './lib/png.js';
 
-const VERSION = '1.3.0';
+const VERSION = '1.4.0';
 const log = (...a) => process.stderr.write('[mcp-3dvista] ' + a.join(' ') + '\n');
 
 const MARCA_SCHEMA = {
@@ -159,7 +159,8 @@ const HERRAMIENTAS = [
       titulo: { type: 'string', description: 'Nombre del skin en 3DVista' },
       marca: { ...MARCA_SCHEMA, properties: { ...MARCA_SCHEMA.properties, opacidad_fondo: { type: 'number' }, logo_ancho: { type: 'number' }, logo_alto: { type: 'number' } } },
       plantilla: { type: 'string', enum: ['barra_inferior', 'barra_lateral', 'ninguna'], description: 'Defecto barra_inferior' },
-      botones: { type: 'array', items: { type: 'string', enum: BOTONES_VTS }, description: 'Botones de la barra, en orden. "info" agrega Panel_Info con titulo, texto y boton cerrar.' },
+      botones: { type: 'array', items: { type: 'string', enum: BOTONES_VTS }, description: 'Botones de la barra, en orden (defecto anterior, siguiente, info, auto, opciones). "info" agrega Panel_Info; "opciones" agrega el menu plegable con los controles del visor.' },
+      opciones: { type: 'array', items: { type: 'string', enum: OPCIONES_VTS }, description: 'Controles del menu plegable (defecto audio, pantalla, giroscopio, vr, hotspots). Usan los controles nativos de 3DVista; los de tipo interruptor cambian de icono segun el estado.' },
       tema: { type: 'string', enum: ['oscuro', 'claro'], description: 'Vidrio oscuro (defecto) o claro' },
       estilo_iconos: { type: 'string', enum: ['moderno', 'circulo', 'cuadrado', 'linea'], description: 'moderno (defecto): iconos de linea finos con circulo de color al pasar el mouse' },
       fuente_incluida: { type: 'boolean', description: 'Incrustar Montserrat (incluida, licencia OFL) cuando no se pasan fuentes ni marca.fuente. Defecto true.' },
@@ -172,7 +173,7 @@ const HERRAMIENTAS = [
       idiomas: { type: 'array', items: { type: 'string' }, description: 'Idiomas del proyecto para los textos (defecto ["es","en"])' },
       componentes: {
         type: 'array',
-        description: 'Componentes a medida (se suman a la plantilla). Cada uno: {tipo: contenedor|boton|boton_icono|texto|parrafo|imagen (texto = una linea; parrafo = texto largo con salto de linea), nombre, visible, posicion:{izquierda,derecha,arriba,abajo,ancho,alto} (numero=px o "50%"), disposicion: absoluta|horizontal|vertical, alineacion_h: izquierda|centro|derecha, alineacion_v: arriba|medio|abajo, separacion, relleno, fondo:{color,color2,opacidad,direccion}, radio, borde:{grosor,color}, sombra:{desenfoque,opacidad,distancia} o true, desenfoque (blur del fondo), texto, tamano_fuente, negrita, color_texto, fuente, tooltip, icono:{nombre, estilo, color, fondo, fondo_hover}, tamano (boton_icono), imagen (ruta local), hijos:[...], acciones:[{tipo: mostrar|ocultar|alternar, componentes:[nombres], efecto} | {tipo: siguiente|anterior} | {tipo: url, url, nueva_pestana} | {tipo: javascript, codigo} | {tipo: codigo_mcp, accion, parametros} ]}',
+        description: 'Componentes a medida (se suman a la plantilla). Cada uno: {tipo: contenedor|boton|boton_icono|texto|parrafo|imagen (texto = una linea; parrafo = texto largo con salto de linea), nombre, visible, posicion:{izquierda,derecha,arriba,abajo,ancho,alto} (numero=px o "50%"), disposicion: absoluta|horizontal|vertical, alineacion_h: izquierda|centro|derecha, alineacion_v: arriba|medio|abajo, separacion, relleno, fondo:{color,color2,opacidad,direccion}, radio, borde:{grosor,color}, sombra:{desenfoque,opacidad,distancia} o true, desenfoque (blur del fondo), texto, tamano_fuente, negrita, color_texto, fuente, tooltip, icono:{nombre, estilo, color, fondo, fondo_hover}, modo: push|toggle, icono_activo:{nombre, estilo, fondo, color} (estado activo del toggle), solo_si_giroscopio, tamano (boton_icono), imagen (ruta local), hijos:[...], acciones:[{tipo: mostrar|ocultar|alternar, componentes:[nombres], efecto} | {tipo: control, control: ' + Object.keys(CONTROLES).join('|') + '} | {tipo: siguiente|anterior} | {tipo: url, url, nueva_pestana} | {tipo: javascript, codigo} | {tipo: codigo_mcp, accion, parametros} ]}',
         items: { type: 'object' }
       }
     } },
