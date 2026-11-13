@@ -12,7 +12,7 @@ import { guia, GUIA } from './lib/guia.js';
 import { crearSkinVts, leerVts, BOTONES_VTS } from './lib/vts.js';
 import { iconoPng } from './lib/png.js';
 
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const log = (...a) => process.stderr.write('[mcp-3dvista] ' + a.join(' ') + '\n');
 
 const MARCA_SCHEMA = {
@@ -162,7 +162,8 @@ const HERRAMIENTAS = [
       botones: { type: 'array', items: { type: 'string', enum: BOTONES_VTS }, description: 'Botones de la barra, en orden. "info" agrega Panel_Info con titulo, texto y boton cerrar.' },
       tema: { type: 'string', enum: ['oscuro', 'claro'], description: 'Vidrio oscuro (defecto) o claro' },
       estilo_iconos: { type: 'string', enum: ['moderno', 'circulo', 'cuadrado', 'linea'], description: 'moderno (defecto): iconos de linea finos con circulo de color al pasar el mouse' },
-      fuentes: { type: 'array', description: 'Fuentes a incrustar en el skin (.ttf/.otf). La primera familia se usa en todos los textos salvo marca.fuente.', items: { type: 'object', properties: { familia: { type: 'string' }, archivo: { type: 'string' }, estilo: { type: 'string', enum: ['Regular', 'Bold'] } } } },
+      fuente_incluida: { type: 'boolean', description: 'Incrustar Montserrat (incluida, licencia OFL) cuando no se pasan fuentes ni marca.fuente. Defecto true.' },
+      fuentes: { type: 'array', description: 'Fuentes propias a incrustar (.ttf/.otf). La primera familia se usa en todos los textos salvo marca.fuente. Sin esto se usa Montserrat incluida.', items: { type: 'object', properties: { familia: { type: 'string' }, archivo: { type: 'string' }, estilo: { type: 'string', enum: ['Regular', 'Bold'] } } } },
       tamano_boton: { type: 'number', description: 'px (defecto 44)' },
       contacto: CONTACTO_SCHEMA,
       info: { type: 'object', properties: { etiqueta: { type: 'string', description: 'Texto pequeno sobre el titulo (defecto INFORMACION)' }, titulo: { type: 'string' }, texto: { type: 'string' }, ancho: { type: 'number' }, alto_texto: { type: 'number' } } },

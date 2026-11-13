@@ -245,7 +245,7 @@ You can combine both: keep a simple native skin for VR and add the HTML skin for
 2. In 3DVista open **Skin**, click the **Open Skin Library** icon (top left of the editor), then **Import Skin**, choose the `.vts` and press **Select**. You can also import it when creating a new project.
 3. Everything appears in the Skin Editor with clear names (`Contenedor_Barra`, `Boton_Info`, `Panel_Info`…), ready to adjust by hand.
 
-Design: a modern **glass** look (dark or light theme) with background blur, fine borders and soft shadows; thin line icons that get a brand-colored circle on hover; a brand card (logo, name, subtitle); an info card with overlay, label, title, accent line, wrapped paragraph and pill contact buttons with icons; styled tooltips. Embed your own font with `fuentes` (.ttf/.otf, e.g. Montserrat or Inter under the OFL license); otherwise Arial is used.
+Design: a modern **glass** look (dark or light theme) with background blur, fine borders and soft shadows; thin line icons that get a brand-colored circle on hover; a brand card (logo, name, subtitle); an info card with overlay, label, title, accent line, wrapped paragraph and pill contact buttons with icons; styled tooltips. Typography: **Montserrat** is embedded by default (bundled in `fuentes/montserrat`, SIL Open Font License 1.1). Use `fuentes` to embed your own .ttf/.otf, `marca.fuente` to use a font already in your project, or `fuente_incluida: false` to skip it.
 
 What it generates: containers (absolute, horizontal or vertical layout, nested), text buttons, paragraphs (wrapped text), icon buttons with PNG icons in your colors and a hover variant, labels, images (your logo) and actions: show/hide/toggle with fade, next/previous scene, open URL and JavaScript (including any `generar_codigo` action). Ready-made templates: `barra_inferior` (bottom bar) and `barra_lateral` (side bar), with an optional info panel.
 
@@ -326,6 +326,7 @@ lib/iconos.js        icon set (24×24 line icons)
 lib/png.js           icon rasterizer + PNG encoder (no dependencies)
 lib/vts.js           native .vts skin generator/reader
 lib/guia.js          built-in guide
+fuentes/montserrat/  bundled font (SIL OFL 1.1)
 runtime/             files copied into the tour (tdv-helper.js, skin-3jc.js, skin-3jc.css)
 test/                end-to-end test + fake export + skin preview
 ```
@@ -339,7 +340,7 @@ Contributions are welcome: new `generar_codigo` actions, skin modules, icons and
 
 ### Disclaimer and license
 
-This is an independent community project, **not affiliated with or endorsed by 3DVista**. "3DVista" is a trademark of its owner. Released under the [MIT License](LICENSE) © Corporación 3JC.
+This is an independent community project, **not affiliated with or endorsed by 3DVista**. Bundled font: Montserrat © The Montserrat Project Authors, [SIL OFL 1.1](fuentes/montserrat/OFL.txt). "3DVista" is a trademark of its owner. Released under the [MIT License](LICENSE) © Corporación 3JC.
 
 <p align="right"><a href="#mcp-3dvista">⬆ Back to top</a></p>
 
@@ -573,7 +574,7 @@ Puedes combinarlos: un skin nativo sencillo para VR y el skin HTML para escritor
 2. En 3DVista abre **Skin**, haz clic en el icono **Open Skin Library** (arriba a la izquierda del editor), luego **Import Skin**, elige el `.vts` y pulsa **Select**. También puedes importarlo al crear un proyecto nuevo.
 3. Todo aparece en el Skin Editor con nombres claros (`Contenedor_Barra`, `Boton_Info`, `Panel_Info`…), listo para ajustarlo a mano.
 
-Diseño: estilo moderno de **vidrio** (tema oscuro o claro) con desenfoque de fondo, bordes finos y sombras suaves; iconos de línea finos con un círculo del color de la marca al pasar el mouse; tarjeta de marca (logo, nombre, subtítulo); tarjeta de información con velo, etiqueta, título, línea de acento, párrafo con salto de línea y botones de contacto redondeados con icono; tooltips con estilo. Incrusta tu propia fuente con `fuentes` (.ttf/.otf, p. ej. Montserrat o Inter con licencia OFL); si no, se usa Arial.
+Diseño: estilo moderno de **vidrio** (tema oscuro o claro) con desenfoque de fondo, bordes finos y sombras suaves; iconos de línea finos con un círculo del color de la marca al pasar el mouse; tarjeta de marca (logo, nombre, subtítulo); tarjeta de información con velo, etiqueta, título, línea de acento, párrafo con salto de línea y botones de contacto redondeados con icono; tooltips con estilo. Tipografía: **Montserrat** se incrusta por defecto (incluida en `fuentes/montserrat`, licencia SIL Open Font License 1.1). Usa `fuentes` para incrustar tu propia .ttf/.otf, `marca.fuente` para usar una fuente que ya tenga tu proyecto, o `fuente_incluida: false` para no incluirla.
 
 Qué genera: contenedores (disposición absoluta, horizontal o vertical, anidados), botones de texto, párrafos (texto con salto de línea), botones con icono PNG en tus colores y variante para hover, textos, imágenes (tu logo) y acciones: mostrar/ocultar/alternar con fundido, escena siguiente/anterior, abrir URL y JavaScript (incluida cualquier acción de `generar_codigo`). Plantillas listas: `barra_inferior` y `barra_lateral`, con panel de información opcional.
 
@@ -654,6 +655,7 @@ lib/iconos.js        set de iconos (línea 24×24)
 lib/png.js           rasterizador de iconos + codificador PNG (sin dependencias)
 lib/vts.js           generador/lector de skins nativos .vts
 lib/guia.js          guía incluida
+fuentes/montserrat/  fuente incluida (SIL OFL 1.1)
 runtime/             archivos que se copian al recorrido (tdv-helper.js, skin-3jc.js, skin-3jc.css)
 test/                prueba de extremo a extremo + export simulado + vista previa del skin
 ```
@@ -667,6 +669,6 @@ Las contribuciones son bienvenidas: nuevas acciones para `generar_codigo`, módu
 
 ### Aviso legal y licencia
 
-Proyecto comunitario independiente, **sin relación ni respaldo de 3DVista**. "3DVista" es una marca registrada de su propietario. Publicado bajo la [licencia MIT](LICENSE) © Corporación 3JC.
+Proyecto comunitario independiente, **sin relación ni respaldo de 3DVista**. Fuente incluida: Montserrat © The Montserrat Project Authors, [SIL OFL 1.1](fuentes/montserrat/OFL.txt). "3DVista" es una marca registrada de su propietario. Publicado bajo la [licencia MIT](LICENSE) © Corporación 3JC.
 
 <p align="right"><a href="#mcp-3dvista">⬆ Volver arriba</a></p>
