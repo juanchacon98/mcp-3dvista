@@ -3,3 +3,4 @@ test/export-demo/
 test/iconos-demo/
 *.log
 .DS_Store
+test/*.vts

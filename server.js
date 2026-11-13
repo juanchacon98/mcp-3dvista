@@ -9,8 +9,10 @@ import { crearSkinHtml, instalarSkinDesde, crearIconos, planSkinNativo, modulosD
 import { inyectar, quitarInyeccion, listarInyecciones, escribirEnExport } from './lib/inyectar.js';
 import { ICONOS } from './lib/iconos.js';
 import { guia, GUIA } from './lib/guia.js';
+import { crearSkinVts, leerVts, BOTONES_VTS } from './lib/vts.js';
+import { iconoPng } from './lib/png.js';
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const log = (...a) => process.stderr.write('[mcp-3dvista] ' + a.join(' ') + '\n');
 
 const MARCA_SCHEMA = {
@@ -134,9 +136,78 @@ const HERRAMIENTAS = [
       fondo: { type: 'string', description: 'Color de fondo para circulo/cuadrado' },
       tamano: { type: 'number', description: 'px (defecto 128)' },
       grosor: { type: 'number', description: 'Grosor del trazo (defecto 2)' },
-      prefijo: { type: 'string' }
+      prefijo: { type: 'string' },
+      png: { type: 'boolean', description: 'Generar tambien PNG (defecto true; 3DVista no muestra SVG en Icon Buttons)' }
     } },
-    run: (a) => { const f = crearIconos(a); return `${f.length} archivos en ${a.carpeta_salida}:\n` + f.map((x) => '- ' + path.basename(x)).join('\n'); }
+    run: (a) => {
+      const f = crearIconos(a);
+      if (a.png !== false) {
+        const est = { tamano: a.tamano || 128, estilo: a.estilo || 'circulo', color: a.color || '#ffffff', fondo: a.fondo || '#1f6f43', grosor: a.grosor || 2 };
+        for (const n of (a.iconos && a.iconos.length ? a.iconos : Object.keys(ICONOS))) {
+          const p = path.join(a.carpeta_salida, `${a.prefijo || 'icono_'}${n}.png`);
+          fs.writeFileSync(p, iconoPng(n, est)); f.push(p);
+        }
+      }
+      return `${f.length} archivos en ${a.carpeta_salida} (SVG + PNG; 3DVista usa los PNG):\n` + f.map((x) => '- ' + path.basename(x)).join('\n');
+    }
+  },
+  {
+    name: 'crear_skin_vts',
+    description: 'Crea un skin NATIVO de 3DVista (.vts) listo para importar: Skin Editor > icono "Open Skin Library" > Import Skin (o al crear proyecto). Genera contenedores, botones con iconos PNG de la marca, textos, imagenes y acciones (mostrar/ocultar con fundido, siguiente/anterior, URL, JavaScript). Sobrevive al re-export y funciona con el VR de 3DVista. Use "plantilla" para una barra lista y/o "componentes" para un diseno a medida.',
+    inputSchema: { type: 'object', required: ['archivo_salida'], properties: {
+      archivo_salida: { type: 'string', description: 'Ruta del .vts a crear' },
+      titulo: { type: 'string', description: 'Nombre del skin en 3DVista' },
+      marca: { ...MARCA_SCHEMA, properties: { ...MARCA_SCHEMA.properties, opacidad_fondo: { type: 'number' }, logo_ancho: { type: 'number' }, logo_alto: { type: 'number' } } },
+      plantilla: { type: 'string', enum: ['barra_inferior', 'barra_lateral', 'ninguna'], description: 'Defecto barra_inferior' },
+      botones: { type: 'array', items: { type: 'string', enum: BOTONES_VTS }, description: 'Botones de la barra, en orden. "info" agrega Panel_Info con titulo, texto y boton cerrar.' },
+      estilo_iconos: { type: 'string', enum: ['circulo', 'cuadrado', 'linea'] },
+      tamano_boton: { type: 'number', description: 'px (defecto 44)' },
+      contacto: CONTACTO_SCHEMA,
+      info: { type: 'object', properties: { titulo: { type: 'string' }, texto: { type: 'string' }, alto: { type: 'number' } } },
+      mostrar_nombre: { type: 'boolean', description: 'Mostrar marca.nombre arriba a la izquierda (defecto true)' },
+      auto_segundos: { type: 'number' },
+      idiomas: { type: 'array', items: { type: 'string' }, description: 'Idiomas del proyecto para los textos (defecto ["es","en"])' },
+      componentes: {
+        type: 'array',
+        description: 'Componentes a medida (se suman a la plantilla). Cada uno: {tipo: contenedor|boton|boton_icono|texto|imagen, nombre, visible, posicion:{izquierda,derecha,arriba,abajo,ancho,alto} (numero=px o "50%"), disposicion: absoluta|horizontal|vertical, alineacion_h: izquierda|centro|derecha, alineacion_v: arriba|medio|abajo, separacion, relleno, fondo:{color,opacidad}, radio, texto, tamano_fuente, negrita, color_texto, fuente, tooltip, icono:{nombre, estilo, color, fondo, fondo_hover}, tamano (boton_icono), imagen (ruta local), hijos:[...], acciones:[{tipo: mostrar|ocultar|alternar, componentes:[nombres], efecto} | {tipo: siguiente|anterior} | {tipo: url, url, nueva_pestana} | {tipo: javascript, codigo} | {tipo: codigo_mcp, accion, parametros} ]}',
+        items: { type: 'object' }
+      }
+    } },
+    run: (a) => {
+      const r = crearSkinVts(a);
+      return [
+        `✔ Skin nativo creado: ${r.archivo}  (${r.imagenes} imagenes)`,
+        '', 'Componentes:', ...r.arbol,
+        r.avisos.length ? '\nAvisos:\n' + r.avisos.map((x) => '- ' + x).join('\n') : '',
+        '\nImportar: 3DVista > Skin > icono "Open Skin Library" (arriba a la izquierda) > Import Skin > elegir el .vts > Select.',
+        'Ojo: cargar un skin reemplaza el actual del proyecto (y sus acciones).'
+      ].join('\n');
+    }
+  },
+  {
+    name: 'leer_skin_vts',
+    description: 'Lee un skin .vts (exportado con "Save Skin as Portable File" o de la biblioteca de 3DVista) y muestra su arbol de componentes, nombres, acciones y textos. Util para aprender de un skin existente o revisar uno generado.',
+    inputSchema: { type: 'object', required: ['ruta'], properties: { ruta: { type: 'string' }, formato: { type: 'string', enum: ['resumen', 'json'] } } },
+    run: (a) => {
+      const v = leerVts(a.ruta);
+      if (a.formato === 'json') return JSON.stringify(v.script, null, 1).slice(0, 200000);
+      const s = v.script || {};
+      const defs = new Map((s.definitions || []).filter((d) => d && d.id).map((d) => [d.id, d]));
+      const textos = {};
+      for (const l of s.data?.locales || []) for (const [k, val] of Object.entries(l.data || {})) if (!textos[k]) textos[k] = val.value;
+      const L = [`# ${v.info?.title || 'Skin'} (version ${v.version})`, `Archivos: ${v.archivos.length} · Idiomas: ${(s.data?.locales || []).map((l) => l.language).join(', ') || '—'}`, ''];
+      const pintar = (ref, prof) => {
+        const d = typeof ref === 'string' ? defs.get(ref.replace(/^this\./, '')) : ref;
+        if (!d) return;
+        const txt = textos[`${d.id}.label`] || textos[`${d.id}.text`] || d.text;
+        const acc = (d.behaviours || []).map((b) => (typeof b === 'string' ? b : b.action + (b.code ? ` [JS ${b.code.length} car.]` : ''))).join(', ');
+        L.push(`${'  '.repeat(prof)}- **${d.name || d.id}** (${d.class}${d.visible === false ? ', oculto' : ''})${txt ? ` "${String(txt).replace(/<[^>]+>/g, '').slice(0, 40)}"` : ''}${acc ? ` → ${acc}` : ''}`);
+        for (const h of d.children || []) pintar(h, prof + 1);
+      };
+      const raices = s.device2Children ? (s.device2Children.general || Object.values(s.device2Children)[0] || []) : (s.children || []);
+      raices.forEach((r) => pintar(r, 0));
+      return L.join('\n');
+    }
   },
   {
     name: 'planificar_skin_nativo',

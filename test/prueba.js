@@ -50,6 +50,21 @@ check(fs.existsSync(path.join(dir, 'iconos-demo', 'icono_info_activo.svg')), 'ic
 r = await tool('planificar_skin_nativo', { marca: { nombre: 'Demo Tour' }, modulos: ['barra', 'info'] });
 await tool('quitar_inyeccion', { ruta_export: exp, nombre_bloque: 'extra' });
 r = await tool('consultar_guia', { tema: 'api' }); check(r.content[0].text.includes('getComponentByName'), 'guia');
+// --- skin nativo .vts ---
+const vts = path.join(dir, 'export-demo', 'skin-generado.vts');
+r = await tool('crear_skin_vts', {
+  archivo_salida: vts, titulo: 'Demo VTS', marca: { nombre: 'Demo Tour', color_primario: '#1f6f43', color_secundario: '#2e8b57' },
+  botones: ['anterior', 'siguiente', 'info', 'whatsapp', 'pantalla', 'escenas'], contacto: { whatsapp: '573001234567' },
+  info: { titulo: 'Bienvenidos', texto: 'Texto de prueba' },
+  componentes: [{ tipo: 'boton', nombre: 'Boton_Extra', texto: 'EXTRA', posicion: { derecha: 16, arriba: 16 }, acciones: [{ tipo: 'alternar', componentes: ['Contenedor_Barra'] }] }]
+});
+check(!r.isError && fs.existsSync(vts), 'crear_skin_vts');
+check(r.content[0].text.includes('escenas'), 'aviso de boton no disponible');
+r = await tool('leer_skin_vts', { ruta: vts });
+check(r.content[0].text.includes('Boton_Whatsapp') && r.content[0].text.includes('Panel_Info') && r.content[0].text.includes('"EXTRA"'), 'leer_skin_vts arbol');
+r = await rpc('tools/call', { name: 'crear_skin_vts', arguments: { archivo_salida: vts + '.x.vts', plantilla: 'ninguna', componentes: [{ tipo: 'boton', nombre: 'X', acciones: [{ tipo: 'mostrar', componentes: ['NoExiste'] }] }] } });
+check(r.result.isError && r.result.content[0].text.includes('NoExiste'), 'valida referencias de acciones');
+
 const rl = await rpc('resources/list', {}); check(rl.result.resources.length > 0, 'resources/list');
 srv.stdin.end();
 console.log(`\n${fallos ? '✖ ' + fallos + ' fallos' : '✔ Todo OK'}`);

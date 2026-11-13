@@ -47,6 +47,7 @@ MCP is an open standard that lets AI assistants such as **Claude** (Claude Code 
 - **read your real tour export**: scenes, skin component names, hotspots, languages;
 - **write JavaScript** for 3DVista's *Run JavaScript* action, using your real names;
 - **design and install a full branded HTML skin** on top of your tour;
+- **generate a native 3DVista skin (`.vts`)** with buttons, brand icons, texts and actions, ready to import into the *Skin Editor*;
 - **plan a native skin** for the 3DVista *Skin Editor*, step by step;
 - **generate SVG icon sets** in your brand colors;
 - **inject custom CSS/JS/HTML** into the exported `index.htm`, safely and repeatably;
@@ -60,10 +61,10 @@ You talk to the assistant in plain language. It calls these tools and gives you 
 |---|---|
 | 3DVista has **no official JavaScript API**, so custom code means guesswork and searching forums | Generates code from internal player calls the community already uses (`getComponentByName`, `mainPlayList`, `get`/`set`), with fallbacks and clear `[3DV]` console warnings |
 | AI assistants **make up** component and scene names | `analizar_tour` reads your export first, so the AI uses the exact names in your project |
-| Building a skin by hand in the Skin Editor takes hours | Get a ready-made branded HTML skin in seconds, or a detailed blueprint for the native editor |
+| Building a skin by hand in the Skin Editor takes hours | Generate a **native `.vts` skin** you import with one click, a branded HTML skin, or a step-by-step blueprint |
 | **Every re-export overwrites `index.htm`** and wipes your customizations | Injections use named blocks you can repeat, plus `instalar_skin_html` to reinstall with one request |
 | Tours shown at events or in VR headsets **without internet** break silently | `auditar_offline` lists every YouTube video, map, web font and link that would fail |
-| Icons that don't match the client's brand | `crear_iconos_svg` generates 32 icons in the client's colors, with hover variants |
+| Icons that don't match the client's brand | `crear_iconos_svg` generates 32 icons in the client's colors (SVG + PNG), with hover variants |
 
 Also:
 
@@ -188,6 +189,8 @@ Ask your assistant: *"Use the 3dvista tools to show me the guide."* It should ca
 - *"Check this code before I paste it into 3DVista: …"*
 
 **Skins**
+- *"Generate a native 3DVista skin (.vts) with a side bar and my logo C:\brand\logo.png."*
+- *"Read the skin C:\skins\old.vts and tell me what each button does."*
 - *"Design a minimal skin: logo top left, a vertical button bar on the left, scenes grouped into 'Exterior' and 'Interior'."*
 - *"Give me a native Skin Editor plan with a bottom bar, a scene menu and a contact panel, in navy blue."*
 - *"Generate white-on-orange circle icons for info, WhatsApp, fullscreen and audio in C:\brand\icons."*
@@ -206,8 +209,10 @@ Ask your assistant: *"Use the 3dvista tools to show me the guide."* It should ca
 | `validar_javascript` | Checks syntax and common mistakes (unchecked nulls, external URLs, stray `await`) | `codigo` |
 | `crear_skin_html` | Builds a complete branded HTML/CSS/JS skin and installs it in the export | `ruta_export` or `carpeta_salida`, `marca`, `botones`, `contacto`, `info`, `escenas`, `posicion_barra`, `css_extra`… |
 | `instalar_skin_html` | Reinstalls an existing skin after re-exporting | `origen`, `ruta_export` |
+| `crear_skin_vts` | Creates a **native 3DVista skin file (`.vts`)** to import: containers, text buttons, icon buttons (PNG icons in brand colors), labels, images and actions (show/hide with fade, next/previous, URL, JavaScript) | `archivo_salida`, `marca`, `plantilla` (`barra_inferior`/`barra_lateral`/`ninguna`), `botones`, `contacto`, `info`, `componentes` |
+| `leer_skin_vts` | Reads any `.vts` (yours or from 3DVista's library) and shows its component tree, names, texts and actions | `ruta`, `formato` |
 | `planificar_skin_nativo` | Blueprint for the Skin Editor: component tree, names, sizes, colors and the code for each action | `marca`, `contacto`, `modulos`, `idiomas`, `guardar_en` |
-| `crear_iconos_svg` | SVG icon set in brand colors, with `_activo` (hover) variants | `carpeta_salida`, `iconos`, `estilo` (`circulo`/`cuadrado`/`linea`), `color`, `fondo`, `tamano` |
+| `crear_iconos_svg` | Icon set in brand colors as SVG **and PNG** (3DVista Icon Buttons need PNG), with `_activo` (hover) variants | `carpeta_salida`, `iconos`, `estilo` (`circulo`/`cuadrado`/`linea`), `color`, `fondo`, `tamano` |
 | `inyectar_en_export` | Adds named, repeatable CSS/JS/HTML blocks to `index.htm` | `ruta_export`, `nombre_bloque`, `css`, `js`, `html`, `archivos`, `esperar_tour` |
 | `quitar_inyeccion` | Removes one injected block, or all of them | `ruta_export`, `nombre_bloque` |
 | `instalar_ayudante` | Installs only the `window.TDVH` helper | `ruta_export` |
@@ -224,15 +229,25 @@ Ask your assistant: *"Use the 3dvista tools to show me the guide."* It should ca
 
 ### HTML skin vs. native skin
 
-| | **HTML skin** (`crear_skin_html`) | **Native skin** (`planificar_skin_nativo`) |
+| | **HTML skin** (`crear_skin_html`) | **Native skin** (`crear_skin_vts` or `planificar_skin_nativo`) |
 |---|---|---|
-| Built with | Generated web files, injected after export | 3DVista's Skin Editor, following the blueprint |
-| Speed | Seconds | Manual, but guided |
+| Built with | Generated web files, injected after export | A generated `.vts` file you import, or by hand following the blueprint |
+| Speed | Seconds | Seconds with `.vts` (then fine-tune in the editor) |
 | Customization | Anything CSS/JS can do; edit `skin-config.js` | Limited to Skin Editor components |
 | Inside immersive VR mode | ❌ Not visible (browser mode only) | ✅ Works with 3DVista's VR skin |
 | Survives re-export | Needs `instalar_skin_html` | ✅ Yes, it's part of the project |
 
 You can combine both: keep a simple native skin for VR and add the HTML skin for desktop and mobile.
+
+**Native `.vts` skin (`crear_skin_vts`):**
+
+1. Ask: *"Create a native skin for my hotel in C:\skins\hotel.vts, color #1f6f43, buttons previous, next, info, fullscreen and WhatsApp +57 300 123 4567"*.
+2. In 3DVista open **Skin**, click the **Open Skin Library** icon (top left of the editor), then **Import Skin**, choose the `.vts` and press **Select**. You can also import it when creating a new project.
+3. Everything appears in the Skin Editor with clear names (`Contenedor_Barra`, `Boton_Info`, `Panel_Info`…), ready to adjust by hand.
+
+What it generates: containers (absolute, horizontal or vertical layout, nested), text buttons, icon buttons with PNG icons in your colors and a hover variant, labels, images (your logo) and actions: show/hide/toggle with fade, next/previous scene, open URL and JavaScript (including any `generar_codigo` action). Ready-made templates: `barra_inferior` (bottom bar) and `barra_lateral` (side bar), with an optional info panel.
+
+> ⚠️ Loading a skin **replaces the project's current skin** and its actions. Try it on a copy of the project first. Thumbnail menus (scene lists) aren't generated yet; add them in the Skin Editor. Format verified with 3DVista **2026.1.2**.
 
 **HTML skin features:** logo and name, current scene title, button bar (bottom or left), slide-in scene menu with search and groups, info and contact modal, floating WhatsApp button, autoplay, mute, fullscreen, share, keyboard support (`Esc`) and a responsive mobile layout. It uses no web fonts and no CDNs.
 
@@ -278,7 +293,7 @@ Design in 3DVista ─► Export HTML5 ─► analizar_tour ─► generar_codigo
 
 | Symptom | Fix |
 |---|---|
-| The tools don't appear in the assistant | Restart the client or open a new session. Run `node server.js` by hand: it should print `listo (14 herramientas)` on stderr. Check that the path is absolute. |
+| The tools don't appear in the assistant | Restart the client or open a new session. Run `node server.js` by hand: it should print `listo (16 herramientas)` on stderr. Check that the path is absolute. |
 | `analizar_tour` says there's no `script.js` | Point it to the folder that contains `index.htm` (the HTML5 export), not the `.vtp` project. |
 | The skin doesn't appear | Open the tour with a local web server, not `file://`. Press F12 and look for errors. Make sure `index.htm` still has the `3DV-MCP:skin-3jc` block (re-exporting removes it). |
 | `[3DV] No existe el componente …` | The name doesn't match the Skin Editor. Run `analizar_tour` with `filtro`. |
@@ -306,6 +321,8 @@ lib/codigo.js        code templates + JS validation
 lib/skin.js          HTML skin, native skin blueprint, icon export
 lib/inyectar.js      safe, repeatable index.htm injection
 lib/iconos.js        icon set (24×24 line icons)
+lib/png.js           icon rasterizer + PNG encoder (no dependencies)
+lib/vts.js           native .vts skin generator/reader
 lib/guia.js          built-in guide
 runtime/             files copied into the tour (tdv-helper.js, skin-3jc.js, skin-3jc.css)
 test/                end-to-end test + fake export + skin preview
@@ -356,6 +373,7 @@ MCP es un estándar abierto que permite a asistentes de IA como **Claude** (Clau
 - **leer el export real de tu recorrido**: escenas, nombres de componentes del skin, hotspots, idiomas;
 - **escribir JavaScript** para la acción *Ejecutar JavaScript* de 3DVista, con tus nombres reales;
 - **diseñar e instalar un skin HTML completo** con la marca del cliente sobre el recorrido;
+- **generar un skin nativo de 3DVista (`.vts`)** con botones, iconos de la marca, textos y acciones, listo para importar en el *Skin Editor*;
 - **planificar un skin nativo** para el *Skin Editor* de 3DVista, paso a paso;
 - **generar sets de iconos SVG** con los colores de la marca;
 - **inyectar CSS/JS/HTML propio** en el `index.htm` exportado, de forma segura y repetible;
@@ -369,10 +387,10 @@ Le hablas al asistente en lenguaje normal. Él usa estas herramientas y te entre
 |---|---|
 | 3DVista **no tiene API de JavaScript oficial**: programar algo a medida es prueba y error y buscar en foros | Genera código con las llamadas internas que ya usa la comunidad (`getComponentByName`, `mainPlayList`, `get`/`set`), con alternativas y avisos `[3DV]` claros en la consola |
 | Las IA **inventan** nombres de componentes y escenas | `analizar_tour` lee primero tu export, así la IA usa los nombres exactos de tu proyecto |
-| Armar un skin a mano en el Skin Editor toma horas | En segundos tienes un skin HTML con la marca listo, o un plano detallado para el editor nativo |
+| Armar un skin a mano en el Skin Editor toma horas | Genera un **skin nativo `.vts`** que importas con un clic, un skin HTML con la marca, o un plano paso a paso |
 | **Cada re-export sobrescribe `index.htm`** y borra lo que personalizaste | Las inyecciones usan bloques con nombre que se pueden repetir, y `instalar_skin_html` reinstala todo con una sola petición |
 | Los recorridos para eventos o visores VR **sin internet** fallan sin avisar | `auditar_offline` lista cada video de YouTube, mapa, fuente web y enlace que fallaría |
-| Iconos que no combinan con la marca del cliente | `crear_iconos_svg` genera 32 iconos con los colores del cliente y variantes para hover |
+| Iconos que no combinan con la marca del cliente | `crear_iconos_svg` genera 32 iconos con los colores del cliente (SVG + PNG) y variantes para hover |
 
 Además:
 
@@ -497,6 +515,8 @@ Pídele a tu asistente: *"Usa las herramientas de 3dvista para mostrarme la guí
 - *"Revisa este código antes de pegarlo en 3DVista: …"*
 
 **Skins**
+- *"Genera un skin nativo de 3DVista (.vts) con barra lateral y mi logo C:\marca\logo.png."*
+- *"Lee el skin C:\skins\viejo.vts y dime qué hace cada botón."*
 - *"Diseña un skin minimalista: logo arriba a la izquierda, barra de botones vertical a la izquierda, escenas agrupadas en 'Exterior' e 'Interior'."*
 - *"Dame un plan de skin nativo para el Skin Editor con barra inferior, menú de escenas y panel de contacto, en azul marino."*
 - *"Genera iconos de círculo naranja con trazo blanco para info, WhatsApp, pantalla completa y audio en C:\marca\iconos."*
@@ -515,8 +535,10 @@ Pídele a tu asistente: *"Usa las herramientas de 3dvista para mostrarme la guí
 | `validar_javascript` | Revisa la sintaxis y errores comunes (nulls sin comprobar, URLs externas, `await` fuera de lugar) | `codigo` |
 | `crear_skin_html` | Crea un skin HTML/CSS/JS completo con la marca y lo instala en el export | `ruta_export` o `carpeta_salida`, `marca`, `botones`, `contacto`, `info`, `escenas`, `posicion_barra`, `css_extra`… |
 | `instalar_skin_html` | Vuelve a instalar un skin existente después de re-exportar | `origen`, `ruta_export` |
+| `crear_skin_vts` | Crea un **archivo de skin nativo de 3DVista (`.vts`)** para importar: contenedores, botones de texto, botones con icono (PNG con los colores de la marca), textos, imágenes y acciones (mostrar/ocultar con fundido, siguiente/anterior, URL, JavaScript) | `archivo_salida`, `marca`, `plantilla` (`barra_inferior`/`barra_lateral`/`ninguna`), `botones`, `contacto`, `info`, `componentes` |
+| `leer_skin_vts` | Lee cualquier `.vts` (tuyo o de la biblioteca de 3DVista) y muestra su árbol de componentes, nombres, textos y acciones | `ruta`, `formato` |
 | `planificar_skin_nativo` | Plano para el Skin Editor: árbol de componentes, nombres, tamaños, colores y el código de cada acción | `marca`, `contacto`, `modulos`, `idiomas`, `guardar_en` |
-| `crear_iconos_svg` | Set de iconos SVG con los colores de la marca, con variantes `_activo` (hover) | `carpeta_salida`, `iconos`, `estilo` (`circulo`/`cuadrado`/`linea`), `color`, `fondo`, `tamano` |
+| `crear_iconos_svg` | Set de iconos con los colores de la marca en SVG **y PNG** (los botones con icono de 3DVista necesitan PNG), con variantes `_activo` (hover) | `carpeta_salida`, `iconos`, `estilo` (`circulo`/`cuadrado`/`linea`), `color`, `fondo`, `tamano` |
 | `inyectar_en_export` | Agrega bloques de CSS/JS/HTML con nombre en `index.htm`, sin duplicarlos | `ruta_export`, `nombre_bloque`, `css`, `js`, `html`, `archivos`, `esperar_tour` |
 | `quitar_inyeccion` | Quita un bloque inyectado, o todos | `ruta_export`, `nombre_bloque` |
 | `instalar_ayudante` | Instala solo el ayudante `window.TDVH` | `ruta_export` |
@@ -533,15 +555,25 @@ Pídele a tu asistente: *"Usa las herramientas de 3dvista para mostrarme la guí
 
 ### Skin HTML vs. skin nativo
 
-| | **Skin HTML** (`crear_skin_html`) | **Skin nativo** (`planificar_skin_nativo`) |
+| | **Skin HTML** (`crear_skin_html`) | **Skin nativo** (`crear_skin_vts` o `planificar_skin_nativo`) |
 |---|---|---|
-| Cómo se hace | Archivos web generados que se inyectan después de exportar | En el Skin Editor de 3DVista, siguiendo el plano |
-| Rapidez | Segundos | Manual, pero guiado |
+| Cómo se hace | Archivos web generados que se inyectan después de exportar | Un archivo `.vts` generado que importas, o a mano siguiendo el plano |
+| Rapidez | Segundos | Segundos con `.vts` (luego se ajusta en el editor) |
 | Personalización | Todo lo que permitan CSS y JS; se edita en `skin-config.js` | Limitada a los componentes del Skin Editor |
 | Dentro del modo VR inmersivo | ❌ No se ve (solo en modo navegador) | ✅ Funciona con el skin VR de 3DVista |
 | Sobrevive al re-export | Hay que correr `instalar_skin_html` | ✅ Sí, es parte del proyecto |
 
 Puedes combinarlos: un skin nativo sencillo para VR y el skin HTML para escritorio y celular.
+
+**Skin nativo `.vts` (`crear_skin_vts`):**
+
+1. Pide: *"Crea un skin nativo para mi hotel en C:\skins\hotel.vts, color #1f6f43, botones anterior, siguiente, info, pantalla completa y WhatsApp +57 300 123 4567"*.
+2. En 3DVista abre **Skin**, haz clic en el icono **Open Skin Library** (arriba a la izquierda del editor), luego **Import Skin**, elige el `.vts` y pulsa **Select**. También puedes importarlo al crear un proyecto nuevo.
+3. Todo aparece en el Skin Editor con nombres claros (`Contenedor_Barra`, `Boton_Info`, `Panel_Info`…), listo para ajustarlo a mano.
+
+Qué genera: contenedores (disposición absoluta, horizontal o vertical, anidados), botones de texto, botones con icono PNG en tus colores y variante para hover, textos, imágenes (tu logo) y acciones: mostrar/ocultar/alternar con fundido, escena siguiente/anterior, abrir URL y JavaScript (incluida cualquier acción de `generar_codigo`). Plantillas listas: `barra_inferior` y `barra_lateral`, con panel de información opcional.
+
+> ⚠️ Cargar un skin **reemplaza el skin actual del proyecto** y sus acciones. Pruébalo primero en una copia del proyecto. Los menús de miniaturas (listas de escenas) todavía no se generan; agrégalos en el Skin Editor. Formato verificado con 3DVista **2026.1.2**.
 
 **Qué trae el skin HTML:** logo y nombre, título de la escena actual, barra de botones (abajo o a la izquierda), menú lateral de escenas con buscador y grupos, ventana de información y contacto, botón flotante de WhatsApp, recorrido automático, silencio, pantalla completa, compartir, soporte de teclado (`Esc`) y diseño adaptado a celulares. No usa fuentes web ni CDNs.
 
@@ -587,7 +619,7 @@ Diseñar en 3DVista ─► Exportar HTML5 ─► analizar_tour ─► generar_co
 
 | Síntoma | Solución |
 |---|---|
-| Las herramientas no aparecen en el asistente | Reinicia el cliente o abre una sesión nueva. Ejecuta `node server.js` a mano: debe mostrar `listo (14 herramientas)` en stderr. Revisa que la ruta sea absoluta. |
+| Las herramientas no aparecen en el asistente | Reinicia el cliente o abre una sesión nueva. Ejecuta `node server.js` a mano: debe mostrar `listo (16 herramientas)` en stderr. Revisa que la ruta sea absoluta. |
 | `analizar_tour` dice que no hay `script.js` | Indica la carpeta que contiene `index.htm` (el export HTML5), no el proyecto `.vtp`. |
 | El skin no aparece | Abre el recorrido con un servidor web local, no con `file://`. Presiona F12 y busca errores. Revisa que `index.htm` todavía tenga el bloque `3DV-MCP:skin-3jc` (el re-export lo borra). |
 | `[3DV] No existe el componente …` | El nombre no coincide con el del Skin Editor. Corre `analizar_tour` con `filtro`. |
@@ -615,6 +647,8 @@ lib/codigo.js        plantillas de código + validación JS
 lib/skin.js          skin HTML, plano del skin nativo, exportación de iconos
 lib/inyectar.js      inyección segura y repetible en index.htm
 lib/iconos.js        set de iconos (línea 24×24)
+lib/png.js           rasterizador de iconos + codificador PNG (sin dependencias)
+lib/vts.js           generador/lector de skins nativos .vts
 lib/guia.js          guía incluida
 runtime/             archivos que se copian al recorrido (tdv-helper.js, skin-3jc.js, skin-3jc.css)
 test/                prueba de extremo a extremo + export simulado + vista previa del skin
