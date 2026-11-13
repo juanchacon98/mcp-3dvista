@@ -1,0 +1,26 @@
+{
+  "name": "mcp-3dvista",
+  "version": "1.0.0",
+  "description": "Servidor MCP para crear skins y programar recorridos virtuales 3DVista (Corporacion 3JC)",
+  "type": "module",
+  "main": "server.js",
+  "bin": {
+    "mcp-3dvista": "server.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/prueba.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "3dvista",
+    "virtual-tour",
+    "360",
+    "claude"
+  ]
+}

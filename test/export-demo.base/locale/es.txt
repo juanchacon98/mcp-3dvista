@@ -1,0 +1,3 @@
+panorama_A1.label = Sala principal
+panorama_B2.label = Cocina
+Label_1.text = Hola

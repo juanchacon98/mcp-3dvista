@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vista previa skin</title>
+<link rel="stylesheet" href="export-demo/skin-3jc/skin-3jc.css">
+<style>html,body{margin:0;height:100%;background:linear-gradient(160deg,#7aa6c2,#c9d7a8 55%,#5b7b46);}</style>
+<script>
+// Player 3DVista simulado para probar el skin fuera de 3DVista
+(function(){
+  function Obj(p){ this.p=p; } Obj.prototype.get=function(k){return this.p[k];}; Obj.prototype.set=function(k,v){this.p[k]=v; if(k==='selectedIndex') document.title='Escena '+v;};
+  Obj.prototype.trigger=function(){};
+  var nombres=['Fachada','Sala principal','Cocina','Habitación 1','Habitación 2','Terraza','Piscina'];
+  var items=nombres.map(function(n,i){return new Obj({media:new Obj({label:n,id:'panorama_'+i,'class':'Panorama'})});});
+  var pl=new Obj({items:items,selectedIndex:0});
+  var comps={};
+  var player={mainPlayList:pl,getComponentByName:function(n){return comps[n]||(comps[n]=new Obj({visible:true}));}};
+  window.TDV={PlayerAPI:{getCurrentPlayer:function(){return player;}}};
+})();
+</script></head><body>
+<script src="export-demo/skin-3jc/tdv-helper.js"></script>
+<script>
+window.S3_CONFIG={marca:{nombre:'Demo Tour',subtitulo:'Recorrido virtual 360°',color_primario:'#1f6f43'},botones:['escenas','anterior','siguiente','auto','audio','pantalla','info','whatsapp'],contacto:{whatsapp:'573001234567'},info:{titulo:'Demo Tour',html:'<p>Bienvenido al recorrido.</p>'},escenas:{grupos:[{titulo:'Exterior',escenas:['Fachada','Terraza','Piscina']},{titulo:'Interior',escenas:['Sala principal','Cocina','Habitación 1','Habitación 2']}]},whatsapp_flotante:true};
+</script>
+<script src="export-demo/skin-3jc/skin-config.js"></script>
+<script>window.S3_CONFIG=Object.assign(window.S3_CONFIG,{marca:{nombre:'Demo Tour',subtitulo:'Recorrido virtual 360°',color_primario:'#1f6f43'},botones:['escenas','anterior','siguiente','auto','audio','pantalla','info','whatsapp'],escenas:{grupos:[{titulo:'Exterior',escenas:['Fachada','Terraza','Piscina']},{titulo:'Interior',escenas:['Sala principal','Cocina','Habitación 1','Habitación 2']}]},whatsapp_flotante:true,contacto:{whatsapp:'573001234567'}});</script>
+<script src="export-demo/skin-3jc/skin-3jc.js"></script>
+</body></html>

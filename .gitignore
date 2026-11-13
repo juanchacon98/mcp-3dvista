@@ -1,0 +1,5 @@
+node_modules/
+test/export-demo/
+test/iconos-demo/
+*.log
+.DS_Store
