@@ -1,6 +1,6 @@
 {
   "name": "mcp-3dvista",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Servidor MCP para crear skins y programar recorridos virtuales 3DVista (Corporacion 3JC)",
   "type": "module",
   "main": "server.js",
